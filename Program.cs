@@ -1,4 +1,4 @@
-﻿using C__Solution;
+﻿using Parser;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace CSolution
+namespace Parser
 {
     class Program
     {
@@ -47,7 +47,7 @@ namespace CSolution
             st.Start();
 
             //Überprüfung ob bereits eine .conf Datei existiert
-            if (!File.Exists(basePath + @"\CSolution.conf"))
+            if (!File.Exists(basePath + @"\Parser.conf"))
             {
                 Console.WriteLine("Optionen für Positionstext:");
                 Console.WriteLine("(0) Alles");
@@ -69,7 +69,7 @@ namespace CSolution
                 } while (status == "");
 
                 //Wenn nein dan wird eine neue Datei angelegt
-                using (StreamWriter file = new StreamWriter(basePath + @"\CSolution.conf"))
+                using (StreamWriter file = new StreamWriter(basePath + @"\Parser.conf"))
                 {
                     //Standart Content der Conf Datei
                     file.WriteLine(@"Geben sie hier die Benötigten File Pfade an. Verwenden sie %P für den aktuellen Pfad z.B.: BestellungsPfad = %P\Bestellung.txt");
@@ -91,7 +91,7 @@ namespace CSolution
             else
             {
                 // Wenn die .conf Datei bereits existiert wird sie Ausgelesen
-                configText = File.ReadAllLines(basePath + @"\CSolution.conf");
+                configText = File.ReadAllLines(basePath + @"\Parser.conf");
                 inputFile = configText[2].Split('=')[1].Split('#')[0].Replace("%P", basePath).Trim();
                 inputFolder = configText[3].Split('=')[1].Split('#')[0].Replace("%P", basePath).Trim();
                 inputFolderPDF = configText[4].Split('=')[1].Split('#')[0].Replace("%P", basePath).Trim();
@@ -117,7 +117,7 @@ namespace CSolution
             {
                 p.FindChildren(unordnedList);
                 p.CalculateNumber(p.artNr);
-                
+
             }
 
             //Spiegelteil Erkennung
@@ -224,11 +224,11 @@ namespace CSolution
             for (int i = 0; i < parts.Length; i++)
             {
                 //Die Seitenumbrüche werden aus jedem Teil gelöscht (Alles von "Bank für Tirol" bis "Ihre Artikelbezeichnung")
-                parts[i] = Regex.Replace(parts[i], @"\s*Bank für Tirol[\S\s]+Nettobetrag",  "");
+                parts[i] = Regex.Replace(parts[i], @"\s*Bank für Tirol[\S\s]+Nettobetrag", "");
 
             }
             //Im Letzten Teil wird noch alles Extrige das danach kommt gelöscht
-            parts[parts.Length -1] = Regex.Replace(Regex.Replace(parts[parts.Length - 1], @"[\s\n]+Bank[\s\S]+", ""), @"[\s\n]*Gesamtbetrag[\s\S]+", "");
+            parts[parts.Length - 1] = Regex.Replace(Regex.Replace(parts[parts.Length - 1], @"[\s\n]+Bank[\s\S]+", ""), @"[\s\n]*Gesamtbetrag[\s\S]+", "");
 
             //In jedem Index von parts ist jetzt ein Teil der Bestellung ohne unnötiges anderes
             //Der Liste positions wird jetzt für jeden Teil der Bestellung eine Position hinzugefügt
@@ -265,7 +265,7 @@ namespace CSolution
             name = Regex.Replace(name, @";", ",");
             //Der Text wird in Zeilen geteilt
             string[] tempLines = text.Split('\n');
-            string[] lines; 
+            string[] lines;
             if (Regex.IsMatch(tempLines[0], @"[A-z:_]\s+$"))
             {
                 lines = new string[tempLines.Length - 1];
@@ -280,13 +280,13 @@ namespace CSolution
             }
 
             string rest = Regex.Split(lines[0], @"\s+(?=[0-9.]+,[0-9][0-9]\s+[A-z]+\s+[0-9.]+,[0-9][0-9]\s+\/)")[1];
-            
+
             //Die Zeilen werden immer geteilt wenn mehrere " " aufeinander folgen
             string[] fields = Regex.Split(rest, @"  +");
 
             //Auswahl der Restlichen Variablen 
             string price = Regex.Match(fields[2], @"[0-9.]+,[0-9]+").ToString();
-            price = price.Replace(".","");
+            price = price.Replace(".", "");
             price = Regex.Replace(price, @";", ",");
 
             string date = "";
@@ -421,7 +421,7 @@ namespace CSolution
                                     {
                                         remark += @"\n" + t;
                                     }
-                                     
+
                                 }
                             }
                         }
