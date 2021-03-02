@@ -277,7 +277,7 @@ namespace Parser
                 lines = tempLines;
             }
 
-            string rest = Regex.Split(lines[0], @"\s+(?=[0-9.]+,[0-9][0-9]\s+[A-z]+\s+[0-9.]+,[0-9][0-9]\s+\/)")[1];
+            string rest = Regex.Split(lines[0], @"\s+(?=[0-9.]+,[0-9]+\s+[A-z]+\s+[0-9.]+,[0-9]+\s+\/)")[1];
 
             //Die Zeilen werden immer geteilt wenn mehrere " " aufeinander folgen
             string[] fields = Regex.Split(rest, @"  +");
@@ -409,6 +409,8 @@ namespace Parser
                                 String t = Regex.Replace(s, @"\s*SIEHE\s*STUECKLISTE\s*", "");
                                 t = t.Trim();
                                 t = Regex.Replace(t, @"^[0-9.]+,[0-9]+$", "");
+                                t = Regex.Replace(t, @"^[0-9]+,[0-9]+ =$", "");
+                                t = Regex.Replace(t, @"^[0-9]+,[0-9]+ [A-x]$", "");
                                 if (t != "")
                                 {
                                     if (remark == "")
