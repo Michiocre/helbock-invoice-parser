@@ -259,7 +259,7 @@ namespace Parser
             posNr = Regex.Replace(posNr, @";", ",");
             string artNr = Regex.Match(text, @"(?<=([0-9]+\/[0-9]+\s+))[0-9]+").ToString();
             artNr = Regex.Replace(artNr, @";", ",");
-            string name = Regex.Match(text, @"[A-z].+?(?=[0-9.]+,[0-9][0-9]\s+[A-z]+\s+[0-9.]+,[0-9][0-9]\s+\/)+").ToString();
+            string name = Regex.Match(text, @"[A-z].+?(?=[0-9.]+,[0-9]+\s+[A-z]+\s+[0-9.]+,[0-9]+\s+\/)+").ToString();
             name = Regex.Replace(name, @";", ",");
             //Der Text wird in Zeilen geteilt
             string[] tempLines = text.Split('\n');
@@ -280,7 +280,7 @@ namespace Parser
             string rest = Regex.Split(lines[0], @"\s+(?=[0-9.]+,[0-9]+\s+[A-z]+\s+[0-9.]+,[0-9]+\s+\/)")[1];
 
             //Die Zeilen werden immer geteilt wenn mehrere " " aufeinander folgen
-            string[] fields = Regex.Split(rest, @"  +");
+            string[] fields = Regex.Split(rest, @" +");
 
             //Auswahl der Restlichen Variablen 
             string price = Regex.Match(fields[2], @"[0-9.]+,[0-9]+").ToString();
