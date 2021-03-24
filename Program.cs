@@ -228,6 +228,11 @@ namespace Parser
             //Im Letzten Teil wird noch alles Extrige das danach kommt gelöscht
             parts[parts.Length - 1] = Regex.Replace(Regex.Replace(parts[parts.Length - 1], @"[\s\n]+Bank[\s\S]+", ""), @"[\s\n]*Gesamtbetrag[\s\S]+", "");
 
+            if (parts[parts.Length -1] == "Bank für Tirol und Vorarlberg AG UniCredit")
+            {
+                parts[parts.Length - 1] = null;
+            }
+
             //In jedem Index von parts ist jetzt ein Teil der Bestellung ohne unnötiges anderes
             //Der Liste positions wird jetzt für jeden Teil der Bestellung eine Position hinzugefügt
             foreach (string s in parts)
