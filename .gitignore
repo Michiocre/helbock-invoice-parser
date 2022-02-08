@@ -1,5 +1,2 @@
-.vs
-.idea
-**/bin/**
-**/obj/**
-**/.DS_Store
+node_modules
+dist
