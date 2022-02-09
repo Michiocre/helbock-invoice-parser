@@ -6,6 +6,7 @@
     "main": "main.js",
     "scripts": {
         "start": "electron .",
+        "test": "jest",
         "build": "electron-builder",
         "clean": "rmdir /s dist",
         "start-build": "start dist/Parser.exe"
@@ -23,6 +24,7 @@
     "devDependencies": {
         "electron": "^17.0.0",
         "electron-builder": "^22.14.13",
-        "electron-packager": "^15.4.0"
+        "electron-packager": "^15.4.0",
+        "jest": "^27.5.1"
     }
 }

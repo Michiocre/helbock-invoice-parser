@@ -1,18 +1,17 @@
 const fs = require('fs');
 
-function parseBrigantoFiles(filePaths, outputPath) {
+function parseBriganFromFiles(filePaths, outputPath) {
     outputLines = ['POS;MENGE;EINHEIT;ARTIKEL;EINZELPREIS;BETRAG;WÄHRUNG;BEZEICHNUNG'];
     filePaths.forEach((filePath) => {
-        outputLines.push(...parseBrigantoFile(filePath));
+        let raw = fs.readFileSync(filePath).toString();
+        outputLines.push(...parseBriganFromString(raw));
     });
 
     fs.writeFileSync(outputPath, outputLines.join('\n'));
     return outputLines.join('\n');
 }
 
-function parseBrigantoFile(filePath) {
-    let raw = fs.readFileSync(filePath).toString();
-
+function parseBriganFromString(raw) {
     let matches = [...raw.matchAll(/(\d+)\s+(\d+,\d+)\s+(\w+)\s+(\S+).+? (\d+,\d+)\s+(\d+,\d+)\s+(\w+)\s+(.+)/g)];
     let articles = [];
 
@@ -37,6 +36,6 @@ function parseBrigantoFile(filePath) {
 }
 
 module.exports = {
-    parseBrigantoFiles,
-    parseBrigantoFile,
+    parseBriganFromFiles,
+    parseBriganFromString,
 };

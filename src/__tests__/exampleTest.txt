@@ -1,0 +1,148 @@
+----------------------- Page 1-----------------------
+
+Company GmbH                                                                       Erstellt am             31.02.1999 
+
+Straße 01                                                                          Unser Auftrag           111111111 
+
+                                                                                   Unsere Kunden-Nr. 
+
+9999  Ort 
+
+                                                                                   Einkäufer               Vorname Nachname
+
+Land 
+
+
+
+                                                                                   Referenz A 
+
+
+
+BESTELLUNG                  1111111111 
+
+
+
+Sehr geehrte Damen und Herren, 
+
+
+
+hiermit bestellen wir wie folgt: 
+
+
+
+Pos.   Menge    Einheit     Artikel     Bezeichnung                                        Einzelpreis     Rabatt %       Betrag 
+
+
+
+10      3,00      stk   FT-01     Artikel 1                     267,00                         801,00   EUR 
+
+
+
+                        Artikel 1 
+
+
+
+                                        Art.Nr. Lieferant:                                                 Liefertermin    31.02.1999  
+
+
+
+20      3,00      stk   FT-01     Artikel 1                     267,00                         801,00   EUR 
+
+
+
+                        Artikel 1 
+
+
+
+                                        Art.Nr. Lieferant:                                                 Liefertermin    31.02.1999  
+
+
+
+30      3,00      stk   FT-01     Artikel 1                     267,00                         801,00   EUR 
+
+
+
+                        Artikel 1 
+
+
+
+                                        Art.Nr. Lieferant:                                                 Liefertermin    31.02.1999  
+
+
+
+40      3,00      stk   FT-01     Artikel 1                     267,00                         801,00   EUR 
+
+
+
+                        Artikel 1 
+
+
+
+                                        Art.Nr. Lieferant:                                                 Liefertermin    31.02.1999   
+
+
+
+50      3,00      stk   FT-01     Artikel 1                     267,00                         801,00   EUR 
+
+
+
+                        Artikel 1 
+
+
+
+                                        Art.Nr. Lieferant:                                                 Liefertermin    31.02.1999
+
+
+----------------------- Page 2-----------------------
+
+                                                                                Erstellt am     :      31.02.1999 
+
+
+
+                                                                                Unser Auftrag   :      111111111 
+
+
+
+BESTELLUNG                                                               Seite  2 
+
+
+
+Pos.  Menge    Einheit     Artikel    Bezeichnung                                       Einzelpreis    Rabatt %      Betrag 
+
+
+
+50      3,00      stk   FT-01     Artikel 1                     267,00                         801,00   EUR 
+
+
+
+                        Artikel 1 
+
+
+
+                                        Art.Nr. Lieferant:                                                 Liefertermin    31.02.1999 
+
+
+
+
+Summe                                                                                                           12313123123123,00   EUR 
+
+
+
+Mehrwertsteuer    20  % auf  131313,00 EUR     netto                                                                        EUR 
+
+
+
+Endsumme                                                                                                        123131313,80   EUR 
+
+
+
+Lieferbedingung            :  DAP 
+
+
+
+Zahlungsbedingungen        :  14 Tage 3%, 30 Tage netto 
+
+
+
+Geben Sie bitte auf allen Rechnungen Bestell- und Artikelnummern an. 
+
