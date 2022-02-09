@@ -6,9 +6,13 @@ function selectBriganto() {
 }
 
 function selectDoppelmayer() {
+    dmOutFolder = null;
+    dmFile = null;
+    document.getElementById('fileDoppelmayer').innerText = dmFile;
+    document.getElementById('folderDoppelmayer').innerText = dmFile;
     document.getElementById('clientSelect').hidden = true;
     document.getElementById('filesDoppelmayer').hidden = false;
-    document.getElementById('processDoppelmayer').hidden = true;
+    document.getElementById('processDoppelmayerButton').disabled = true;
     document.getElementById('finishedDoppelmayer').hidden = true;
 }
 
@@ -16,6 +20,10 @@ function clientSelect() {
     document.getElementById('clientSelect').hidden = false;
     document.getElementById('filesBriganto').hidden = true;
     document.getElementById('filesDoppelmayer').hidden = true;
+}
+
+function exit() {
+    api.send('exit', true);
 }
 
 function filesBriganto() {
@@ -27,6 +35,7 @@ function filesBriganto() {
         'briganto',
     ]);
 }
+
 let brigantoFiles = [];
 
 api.receive('openDialog', (data) => {
@@ -47,6 +56,23 @@ api.receive('openDialog', (data) => {
             document.getElementById('filesBriganto').hidden = true;
             document.getElementById('processBriganto').hidden = false;
             break;
+        case 'doppelmayerFile':
+            dmFile = data.data.filePaths[0];
+
+            document.getElementById('fileDoppelmayer').innerText = dmFile;
+
+            if (dmFile && dmOutFolder) {
+                document.getElementById('processDoppelmayerButton').disabled = false;
+            }
+            break;
+        case 'doppelmayerFolder':
+            dmOutFolder = data.data.filePaths[0];
+
+            document.getElementById('folderDoppelmayer').innerText = dmOutFolder;
+            if (dmFile && dmOutFolder) {
+                document.getElementById('processDoppelmayerButton').disabled = false;
+            }
+            break;
     }
 });
 
@@ -60,4 +86,44 @@ api.receive('processBriganto', (data) => {
 
     document.getElementById('processBriganto').hidden = true;
     document.getElementById('finishedBriganto').hidden = false;
+});
+
+let dmOutFolder = null;
+let dmFile = null;
+
+function bestellungDoppelmayer() {
+    api.send('openDialog', [
+        {
+            properties: ['openFile'],
+            filters: [{ name: 'Textdateien', extensions: ['txt'] }],
+        },
+        'doppelmayerFile',
+    ]);
+}
+
+function outDoppelmayer() {
+    api.send('openDialog', [
+        {
+            properties: ['openDirectory'],
+        },
+        'doppelmayerFolder',
+    ]);
+}
+
+function processDoppelmayer() {
+    api.send('processDoppelmayer', { dmFile, dmOutFolder });
+}
+
+api.receive('processDoppelmayer', (data) => {
+    document.getElementById('outputDoppelmayer').innerText =
+        'Die Datei "' +
+        data.dmFile +
+        '" und der Ordner "' +
+        data.dmOutFolder +
+        '" wurden verarbeitet und in der Datei "' +
+        data.outputPath +
+        '" gespeichert.';
+
+    document.getElementById('filesDoppelmayer').hidden = true;
+    document.getElementById('finishedDoppelmayer').hidden = false;
 });

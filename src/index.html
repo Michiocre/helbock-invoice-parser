@@ -31,11 +31,16 @@
                 <h1>Briganto</h1>
                 <div id="outputBriganto" class="output"></div>
                 <button onClick="selectBriganto()">Zurück</button>
+                <button onClick="exit()">Program Schließen</button>
             </div>
 
             <div id="filesDoppelmayer" hidden>
                 <h1>Doppelmayer</h1>
-                <button onClick="filesDoppelmayer()">Select Files</button>
+                <button onClick="bestellungDoppelmayer()">Select Bestellung.txt</button>
+                <span id="fileDoppelmayer" class="output"></span>
+                <button onClick="outDoppelmayer()">Select out Folder</button>
+                <span id="folderDoppelmayer" class="output"></span>
+                <button id="processDoppelmayerButton" onClick="processDoppelmayer()" disabled>Verarbeiten</button>
                 <button onClick="clientSelect()">Zurück</button>
             </div>
 
@@ -43,6 +48,7 @@
                 <h1>Doppelmayer</h1>
                 <div id="outputDoppelmayer" class="output"></div>
                 <button onClick="selectDoppelmayer()">Zurück</button>
+                <button onClick="exit()">Program Schließen</button>
             </div>
         </div>
 
