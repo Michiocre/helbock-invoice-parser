@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="stylesheet" href="./css/styles.css" />
+        <link rel="stylesheet" href="./css/pico.min.css" />
+        <title>Helbock Parser</title>
+    </head>
+    <body>
+        <div id="center">
+            <div id="clientSelect">
+                <h1>Kunde Auswählen</h1>
+                <button onClick="selectBriganto()">Briganto</button>
+                <button onClick="selectDoppelmayer()">Doppelmayer</button>
+            </div>
+
+            <div id="filesBriganto" hidden>
+                <h1>Briganto</h1>
+                <button id="brigantoButton" onClick="filesBriganto()">Textdateien auswählen</button>
+                <button onClick="clientSelect()">Zurück</button>
+            </div>
+
+            <div id="processBriganto" hidden>
+                <h1>Briganto</h1>
+                <div id="namesBriganto" class="output"></div>
+                <button id="brigantoButton" onClick="processBriganto()">Verabreiten</button>
+                <button onClick="selectBriganto()">Zurück</button>
+            </div>
+
+            <div id="finishedBriganto" hidden>
+                <h1>Briganto</h1>
+                <div id="outputBriganto" class="output"></div>
+                <button onClick="selectBriganto()">Zurück</button>
+            </div>
+
+            <div id="filesDoppelmayer" hidden>
+                <h1>Doppelmayer</h1>
+                <button onClick="filesDoppelmayer()">Select Files</button>
+                <button onClick="clientSelect()">Zurück</button>
+            </div>
+
+            <div id="finishedDoppelmayer" hidden>
+                <h1>Doppelmayer</h1>
+                <div id="outputDoppelmayer" class="output"></div>
+                <button onClick="selectDoppelmayer()">Zurück</button>
+            </div>
+        </div>
+
+        <script src="./renderer.js"></script>
+    </body>
+</html>

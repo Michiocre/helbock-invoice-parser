@@ -1,0 +1,16 @@
+/* styles.css */
+
+/* Add styles here to customize the appearance of your app */
+#center {
+    width: 33%;
+    min-width: 25%;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
+
+.output {
+    margin-bottom: 40px;
+}
