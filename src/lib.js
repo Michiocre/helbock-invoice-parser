@@ -1,13 +1,12 @@
 const fs = require('fs');
 
-function parseBriganFromFiles(filePaths, outputPath) {
+function parseBriganFromFiles(filePaths) {
     outputLines = ['POS;MENGE;EINHEIT;ARTIKEL;EINZELPREIS;BETRAG;WÄHRUNG;BEZEICHNUNG'];
     filePaths.forEach((filePath) => {
         let raw = fs.readFileSync(filePath).toString();
         outputLines.push(...parseBriganFromString(raw));
     });
 
-    fs.writeFileSync(outputPath, outputLines.join('\n'));
     return outputLines.join('\n');
 }
 

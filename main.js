@@ -28,7 +28,10 @@ ipcMain.on('openDialog', async (event, args) => {
 
 ipcMain.on('processBriganto', async (event, args) => {
     let outputPath = app.getAppPath() + '\\Output.csv';
-    lib.parseBriganFromFiles(args, outputPath);
+
+    let processed = lib.parseBriganFromFiles(args, outputPath);
+    fs.writeFileSync(outputPath, processed);
+
     let fileNames = [];
     args.forEach((filePath) => {
         fileNames.push(filePath.split('\\').pop());

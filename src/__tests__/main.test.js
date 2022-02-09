@@ -1,52 +1,50 @@
 let lib = require('../lib.js');
 let fs = require('fs');
 
-let exampleFile = __dirname + '/exampleTest.txt';
-let exampleContent = fs.readFileSync(exampleFile).toString();
-let outputFile = __dirname + '/Output.csv';
+describe('Briganto tests', () => {
+    let exampleFile = __dirname + '/brigandoExample.txt';
+    let exampelFileOutput = __dirname + '/brigandoExample.json';
 
-let header = 'POS;MENGE;EINHEIT;ARTIKEL;EINZELPREIS;BETRAG;WÄHRUNG;BEZEICHNUNG';
+    let exampleContent = fs.readFileSync(exampleFile).toString();
+    let exampleContentOutput = JSON.parse(fs.readFileSync(exampelFileOutput).toString());
 
-let expectedContent = [
-    '10;3,00;stk;FT-01;267,00;801,00;EUR;Artikel 1',
-    '20;3,00;stk;FT-01;267,00;801,00;EUR;Artikel 1',
-    '30;3,00;stk;FT-01;267,00;801,00;EUR;Artikel 1',
-    '40;3,00;stk;FT-01;267,00;801,00;EUR;Artikel 1',
-    '50;3,00;stk;FT-01;267,00;801,00;EUR;Artikel 1',
-    '50;3,00;stk;FT-01;267,00;801,00;EUR;Artikel 1',
-];
+    let header = 'POS;MENGE;EINHEIT;ARTIKEL;EINZELPREIS;BETRAG;WÄHRUNG;BEZEICHNUNG';
 
-describe('manual tests', () => {
-    it('Briganto string should return the exact output corresponding to the input', () => {
-        expect(lib.parseBriganFromString(exampleContent)).toStrictEqual(expectedContent);
+    it('Function parseBriganFromString should return correct output', () => {
+        expect(lib.parseBriganFromString(exampleContent)).toStrictEqual(exampleContentOutput);
     });
 
-    it('Briganto file should return the exact output corresponding to the input', () => {
-        lib.parseBriganFromFiles([exampleFile], outputFile);
-
-        expect(fs.readFileSync(outputFile).toString()).toBe(header + '\n' + expectedContent.join('\n'));
+    it('Function parseBriganFromFiles should return correct output', () => {
+        expect(lib.parseBriganFromFiles([exampleFile])).toBe(header + '\n' + exampleContentOutput.join('\n'));
     });
 });
 
-describe('automated tests', () => {
-    let brigandoExFolder = __dirname + '/brigandoExamples';
-    if (fs.existsSync(brigandoExFolder)) {
-        describe('brigando tests', () => {
-            fs.readdirSync(brigandoExFolder).forEach((folder) => {
-                let files = fs.readdirSync(brigandoExFolder + '\\' + folder);
-                it('folder ' + folder + ' should contain 2 files, one txt one result', () => {
-                    expect(files.length).toBe(2);
-                    expect(files[0].split('.')[1]).toBe('txt');
-                    expect(files[1].split('.')[1]).toBe('json');
-                });
+let brigandoExFolder = __dirname + '/brigandoExamples';
+let doppelMayerExFolder = __dirname + '/doppelmayerExamples';
+if (fs.existsSync(brigandoExFolder) || fs.existsSync(doppelMayerExFolder)) {
+    describe('Automated tests', () => {
+        if (fs.existsSync(brigandoExFolder)) {
+            describe('Brigando tests', () => {
+                fs.readdirSync(brigandoExFolder).forEach((file) => {
+                    parts = file.split('.');
+                    if (parts[1] !== 'txt') {
+                        return;
+                    }
 
-                it('folder ' + folder + ' example should be valid.', () => {
-                    let input = fs.readFileSync(brigandoExFolder + '\\' + folder + '\\' + files[0]).toString();
-                    let result = JSON.parse(fs.readFileSync(brigandoExFolder + '\\' + folder + '\\' + files[1]).toString());
+                    let resultPath = parts[0] + '.json';
 
-                    expect(lib.parseBriganFromString(input)).toStrictEqual(result);
+                    if (!fs.existsSync(brigandoExFolder + '//' + resultPath)) {
+                        return;
+                    }
+
+                    it('file ' + file + ' should be processes into the corresponding result', () => {
+                        let input = fs.readFileSync(brigandoExFolder + '\\' + file).toString();
+                        let result = JSON.parse(fs.readFileSync(brigandoExFolder + '\\' + resultPath).toString());
+
+                        expect(lib.parseBriganFromString(input)).toStrictEqual(result);
+                    });
                 });
             });
-        });
-    }
-});
+        }
+    });
+}
