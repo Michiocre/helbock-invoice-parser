@@ -1,33 +1,39 @@
 const fs = require('fs');
 
-function parseBrigantoFromFiles(filePaths) {
-    outputLines = ['POS;MENGE;EINHEIT;ARTIKEL;EINZELPREIS;BETRAG;WÄHRUNG;BEZEICHNUNG'];
-    filePaths.forEach((filePath) => {
-        let raw = fs.readFileSync(filePath).toString();
-        outputLines.push(...parseBrigantoFromString(raw));
-    });
+let header =
+    'ORI_NR;LIST;ORI_MVA;TOP_POSITION;ORI_NAME;ORI_DRAWINGNR;ORI_QUANTITYCALCULATED;TOTAL_QUANTITY;LENGHT;UNIT;ORI_POSUNITCALCPRICE;ORI_POSSUMWEIGHT;TYPE;ORI_REMARK;ORI_DATE';
+function parseBrigantoFromFile(filePath) {
+    outputLines = [header];
+    let raw = fs.readFileSync(filePath).toString();
+    let processed = parseBrigantoFromString(raw);
+    for (const line of processed) {
+        outputLines.push(
+            [line.nr, '', line.mva, '', line.name, '', line.quantitycalculated, '', '', line.unit, line.posunitcalcprice, '', '', '', line.date].join(
+                ';'
+            )
+        );
+    }
 
-    return outputLines.join('\n');
+    return outputLines.join('\r\n');
 }
 
 function parseBrigantoFromString(raw) {
-    let matches = [...raw.matchAll(/(\d+)\s+(\d+,\d+)\s+(\w+)\s+(\S+).+? (\d+,\d+)\s+(\d+,\d+)\s+(\w+)\s+(.+)/g)];
+    let matches = [...raw.matchAll(/(\d+)\s+(\d+,\d+)\s+(\w+)\s+(\S+).+? (\d+,\d+)\s+\d+,\d+\s+\w+\s+(.+)[\s\S]*?Liefertermin\s+(\d+\.\d+.\d+)/g)];
     let articles = [];
 
     for (let i = 0; i < matches.length; i++) {
         let match = matches[i];
         if (matches) {
             let article = {
-                pos: match[1],
-                menge: match[2],
-                einheit: match[3],
-                artikel: match[4],
-                einzelpreis: match[5],
-                betrag: match[6],
-                wahrung: match[7],
-                bezeichnung: match[8].trim(),
+                nr: match[1],
+                quantitycalculated: match[2],
+                unit: match[3],
+                mva: match[4],
+                posunitcalcprice: match[5],
+                name: match[6].trim(),
+                date: match[7],
             };
-            articles.push(Object.values(article).join(';'));
+            articles.push(article);
         }
     }
 
@@ -58,9 +64,7 @@ function parseDoppelmayerFromFiles(invoicePath, folderPath) {
     }
 
     let printOrder = [];
-    let outputLines = [
-        'ORI_NR;LIST;ORI_MVA;TOP_POSITION;ORI_NAME;ORI_DRAWINGNR;ORI_QUANTITYCALCULATED;TOTAL_QUANTITY;LENGHT;UNIT;ORI_POSUNITCALCPRICE;ORI_POSSUMWEIGHT;TYPE;ORI_REMARK;ORI_DATE',
-    ];
+    let outputLines = [header];
 
     printOrder.push(...invoiceArticles);
 
@@ -274,7 +278,7 @@ function customPrintFloat(number) {
 }
 
 module.exports = {
-    parseBrigantoFromFiles,
+    parseBrigantoFromFile,
     parseBrigantoFromString,
     parseDoppelmayerFromFiles,
     parseDoppelmayerInvoiceFromString,

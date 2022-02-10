@@ -1,66 +1,48 @@
 let lib = require('../lib.js');
+let path = require('path');
 let fs = require('fs');
 
-describe('Briganto tests', () => {
-    let exampleFile = __dirname + '/brigantoExample.txt';
-    let exampleFileOutput = __dirname + '/brigantoExample.json';
-
-    let exampleContent = fs.readFileSync(exampleFile).toString();
-    let exampleContentOutput = JSON.parse(fs.readFileSync(exampleFileOutput).toString());
-
-    let header = 'POS;MENGE;EINHEIT;ARTIKEL;EINZELPREIS;BETRAG;WÄHRUNG;BEZEICHNUNG';
-
-    it('Function parseBrigantoFromString should return correct output', () => {
-        expect(lib.parseBrigantoFromString(exampleContent)).toStrictEqual(exampleContentOutput);
-    });
-
-    it('Function parseBrigantoFromFiles should return correct output', () => {
-        expect(lib.parseBrigantoFromFiles([exampleFile])).toBe(header + '\n' + exampleContentOutput.join('\n'));
-    });
-});
-
-let brigantoExFolder = __dirname + '/brigantoExamples';
-let doppelMayerExFolder = __dirname + '/doppelmayerExamples';
+let brigantoExFolder = path.join(__dirname, 'brigantoExamples');
+let doppelMayerExFolder = path.join(__dirname, '/doppelmayerExamples');
 if (fs.existsSync(brigantoExFolder) || fs.existsSync(doppelMayerExFolder)) {
-    describe('Automated tests', () => {
-        if (fs.existsSync(brigantoExFolder)) {
-            describe('Briganto tests', () => {
-                fs.readdirSync(brigantoExFolder).forEach((file) => {
-                    parts = file.split('.');
-                    if (parts[1] !== 'txt') {
-                        return;
-                    }
+    if (fs.existsSync(brigantoExFolder)) {
+        describe('Briganto tests', () => {
+            fs.readdirSync(brigantoExFolder).forEach((file) => {
+                parts = file.split('.');
+                if (parts[1] !== 'txt') {
+                    return;
+                }
 
-                    let resultPath = parts[0] + '.json';
+                let resultPath = parts[0] + '.result';
+                let resultFile = path.join(brigantoExFolder, resultPath);
 
-                    if (!fs.existsSync(brigantoExFolder + '//' + resultPath)) {
-                        return;
-                    }
+                if (!fs.existsSync(resultFile)) {
+                    return;
+                }
 
-                    it('file ' + file + ' should be processes into the corresponding result', () => {
-                        let input = fs.readFileSync(brigantoExFolder + '\\' + file).toString();
-                        let result = JSON.parse(fs.readFileSync(brigantoExFolder + '\\' + resultPath).toString());
+                it('file ' + file + ' should be processes into the corresponding result', () => {
+                    let inputFile = path.join(brigantoExFolder, file);
+                    let result = fs.readFileSync(resultFile).toString();
 
-                        expect(lib.parseBrigantoFromString(input)).toStrictEqual(result);
-                    });
+                    expect(lib.parseBrigantoFromFile(inputFile)).toStrictEqual(result);
                 });
             });
-        }
+        });
+    }
 
-        if (fs.existsSync(doppelMayerExFolder)) {
-            describe('Doppelmayer tests', () => {
-                fs.readdirSync(doppelMayerExFolder).forEach((subFolder) => {
-                    let folderName = doppelMayerExFolder + '\\' + subFolder + '\\' + 'out';
-                    let fileName = doppelMayerExFolder + '\\' + subFolder + '\\' + 'Bestellung.txt';
-                    let outputFile = doppelMayerExFolder + '\\' + subFolder + '\\' + 'Output.txt';
+    if (fs.existsSync(doppelMayerExFolder)) {
+        describe('Doppelmayer tests', () => {
+            fs.readdirSync(doppelMayerExFolder).forEach((subFolder) => {
+                let folderName = doppelMayerExFolder + '\\' + subFolder + '\\' + 'out';
+                let fileName = doppelMayerExFolder + '\\' + subFolder + '\\' + 'Bestellung.txt';
+                let outputFile = doppelMayerExFolder + '\\' + subFolder + '\\' + 'Output.txt';
 
-                    it('Processing data in the folder ' + subFolder + ' should be processes into the corresponding result', () => {
-                        let output = fs.readFileSync(outputFile).toString();
-                        let result = lib.parseDoppelmayerFromFiles(fileName, folderName);
-                        expect(result.trim()).toEqual(output.trim());
-                    });
+                it('Processing data in the folder ' + subFolder + ' should be processes into the corresponding result', () => {
+                    let output = fs.readFileSync(outputFile).toString();
+                    let result = lib.parseDoppelmayerFromFiles(fileName, folderName);
+                    expect(result.trim()).toEqual(output.trim());
                 });
             });
-        }
-    });
+        });
+    }
 }
