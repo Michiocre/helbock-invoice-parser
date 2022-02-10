@@ -1,10 +1,28 @@
 const fs = require('fs');
+const path = require('path');
+const extract = require('pdf-text-extract');
+
+async function parsePdf(path) {
+    return new Promise((resolve, reject) => {
+        extract(path, function (err, pages) {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(pages);
+            }
+        });
+    });
+}
 
 let header =
     'ORI_NR;LIST;ORI_MVA;TOP_POSITION;ORI_NAME;ORI_DRAWINGNR;ORI_QUANTITYCALCULATED;TOTAL_QUANTITY;LENGHT;UNIT;ORI_POSUNITCALCPRICE;ORI_POSSUMWEIGHT;TYPE;ORI_REMARK;ORI_DATE';
-function parseBrigantoFromFile(filePath) {
+
+async function parseBrigantoFromFile(filePath) {
     outputLines = [header];
-    let raw = fs.readFileSync(filePath).toString();
+
+    let pages = await parsePdf(filePath);
+    let raw = pages.join();
+
     let processed = parseBrigantoFromString(raw);
     for (const line of processed) {
         outputLines.push(
@@ -40,8 +58,10 @@ function parseBrigantoFromString(raw) {
     return articles;
 }
 
-function parseDoppelmayerFromFiles(invoicePath, folderPath) {
-    let invoiceRaw = fs.readFileSync(invoicePath).toString();
+async function parseDoppelmayerFromFiles(invoicePath, folderPath) {
+    let invoicePages = await parsePdf(invoicePath);
+    let invoiceRaw = invoicePages.join();
+
     let filesInFolder = fs.readdirSync(folderPath);
 
     let invoiceArticles = parseDoppelmayerInvoiceFromString(invoiceRaw);
@@ -49,11 +69,12 @@ function parseDoppelmayerFromFiles(invoicePath, folderPath) {
 
     for (const file of filesInFolder) {
         let parts = file.split('.');
-        if (parts[0].length != 8 || parts[1] != 'txt') {
+        if (parts[0].length != 8 || parts[1] != 'pdf') {
             continue;
         }
 
-        let positionRaw = fs.readFileSync(folderPath + '\\' + file).toString();
+        let positionPages = await parsePdf(path.join(folderPath, file));
+        let positionRaw = positionPages.join();
 
         positions.push(...parseDoppelmayerPositionFromString(positionRaw));
     }
@@ -71,21 +92,21 @@ function parseDoppelmayerFromFiles(invoicePath, folderPath) {
     for (let i = 0; i < printOrder.length; i++) {
         outputLines.push(
             [
-                printOrder[i].pos,
-                printOrder[i].parent,
-                printOrder[i].articleNr,
-                printOrder[i].eldestParent,
-                printOrder[i].bezeichnung,
-                printOrder[i].zeichnungsNr,
-                customPrintFloat(printOrder[i].menge),
-                customPrintFloat(printOrder[i].calcMenge),
+                printOrder[i].nr,
+                printOrder[i].list,
+                printOrder[i].mva,
+                printOrder[i].topPosition,
+                printOrder[i].name,
+                printOrder[i].darwingNr,
+                customPrintFloat(printOrder[i].quantitycalculated),
+                customPrintFloat(printOrder[i].totalQuantity),
                 customPrintFloat(printOrder[i].length),
-                printOrder[i].mengenEinheit,
-                printOrder[i].preis,
-                printOrder[i].gewicht,
+                printOrder[i].unit,
+                printOrder[i].posunitcalcprice,
+                printOrder[i].possumweight,
                 printOrder[i].type,
-                printOrder[i].beschreibung,
-                printOrder[i].lieferdatum,
+                printOrder[i].remark,
+                printOrder[i].date,
             ].join(';')
         );
 
@@ -95,41 +116,43 @@ function parseDoppelmayerFromFiles(invoicePath, folderPath) {
     return outputLines.join('\r\n');
 }
 
+function debugPrint(data) {
+    fs.writeFileSync(path.join(__dirname, 'debug.txt'), data);
+}
+
 function parseDoppelmayerInvoiceFromString(raw) {
     //Remove headers and footers
-    let cut = raw.replaceAll(/--------[\s\S]+?Nettobetrag/g, '');
-    cut = cut.replaceAll(/Bank für Tirol[\s\S]+?Seite\s+\d+\s+\/\s+\d+/g, '');
+    raw = raw.replace(/^[\s\S]+?Nettobetrag/g, '');
+    raw = raw.replaceAll(/Bank für Tirol[\s\S]+?Nettobetrag/g, '');
 
-    let parts = cut.split(/\.{5,}/g);
+    //Remove all side Text;
+    raw = raw.replaceAll(/INSERT_YOUR_DEP plotted: nek/g, '');
 
-    let articles = [];
+    let parts = raw.split(/\.{5,}/g);
 
     parts.pop(); //Removing the unneeded stuff at the bottom;
 
-    for (let i = 0; i < parts.length; i++) {
-        //Remove single letters floating around
-        parts[i] = parts[i].replaceAll(/(\s+[A-z:]\s*?\n)/g, '\n');
-        parts[i] = parts[i].replaceAll(/\s+\n/g, '\n');
+    let articles = [];
 
+    for (let i = 0; i < parts.length; i++) {
+        debugPrint(parts[i]);
         let matches = parts[i].match(
-            /(\d+\/\d+)\s+(\d+)\s+(.+?)(\d+,\d+)\s+(\w+)\s+((\d+\.)*\d+,\d+) \/ ((\d+\.)*\d+,\d+)\s+((\d+\.)*\d+,\d+)\s+((\d+\.)*\d+,\d+)/
+            /(\d+\/\d+)\s+(\d+)\s+(.+?)(\d+,\d+)\s+(\w+)\s+((?:\d+\.)*\d+,\d+) \/ (?:(?:\d+\.)*\d+,\d+)\s+(?:\d+\.)*\d+,\d+\s+(?:\d+\.)*\d+,\d+[\S\s]+?Lieferdatum\s+(\d+\.\d+\.\d+)[\S\s]+?Zeichnungs Nr\.\s+(.+)/
         );
 
         let article = {
-            pos: matches[1],
-            articleNr: matches[2],
-            bezeichnung: matches[3].trim(),
-            menge: customParseFloat(matches[4]),
-            calcMenge: customParseFloat(matches[4]),
+            nr: matches[1],
+            mva: matches[2],
+            name: matches[3].trim(),
+            quantitycalculated: customParseFloat(matches[4]),
+            totalQuantity: customParseFloat(matches[4]),
             length: 0,
-            mengenEinheit: matches[5],
-            preis: matches[6],
-            pe: matches[7],
-            grundbetrag: matches[8],
-            nettobetrag: matches[9],
-            zeichnungsNr: '',
-            beschreibung: '',
-            type: 'UNSET',
+            unit: matches[5],
+            posunitcalcprice: matches[6],
+            date: matches[7],
+            darwingNr: matches[8],
+            remark: '',
+            type: '',
         };
 
         let lines = parts[i].trim().split(/\r*\n/);
@@ -139,16 +162,9 @@ function parseDoppelmayerInvoiceFromString(raw) {
                 continue;
             }
 
-            if (lines[j].startsWith('Zeichnungs Nr.')) {
-                article.zeichnungsNr = lines[j].split(' ').pop();
-                continue;
+            if (!(lines[j].startsWith('Zeichnungs Nr.') || lines[j].startsWith('Lieferdatum'))) {
+                article.remark += lines[j] + '\\n';
             }
-            if (lines[j].startsWith('Lieferdatum')) {
-                article.lieferdatum = lines[j].split(' ').pop();
-                continue;
-            }
-
-            article.beschreibung += lines[j] + '\\n';
         }
 
         parts[i] = article;
@@ -200,23 +216,28 @@ function parseDoppelmayerPositionFromString(raw) {
         }
 
         let article = {
-            parent: parent,
-            pos: match[1],
-            articleNr: match[2],
-            menge: customParseFloat(match[3]),
-            calcMenge: 0,
+            nr: match[1],
+            list: parent,
+            mva: match[2],
+            topPosition: '',
+            name: match[5],
+            darwingNr: match[6],
+            quantitycalculated: customParseFloat(match[3]),
+            totalQuantity: 0,
             length: 0,
-            mengenEinheit: match[4],
-            bezeichnung: match[5],
-            zeichnungsNr: match[6],
-            gewicht: match[7],
+            unit: match[4],
+            posunitcalcprice: '',
+            possumweight: match[7],
+            type: '',
+            remark: '',
+            date: '',
         };
 
-        if (article.mengenEinheit === 'pcs') {
-            article.beschreibung = nonEmtpyLines.join('\\n');
-        } else if (article.mengenEinheit === 'm') {
-            article.length = article.menge;
-            article.menge = 1;
+        if (article.unit === 'pcs') {
+            article.remark = nonEmtpyLines.join('\\n');
+        } else if (article.unit === 'm') {
+            article.length = article.quantitycalculated;
+            article.quantitycalculated = 1;
         }
 
         articles.push(article);
@@ -228,24 +249,24 @@ function parseDoppelmayerPositionFromString(raw) {
 function findChildren(article, list) {
     article.children = [];
     for (const position of list) {
-        if (position.parent == article.articleNr) {
-            if (article.eldestParent) {
-                position.eldestParent = article.eldestParent;
+        if (position.parent == article.mva) {
+            if (article.topPosition) {
+                position.topPosition = article.topPosition;
             } else {
-                position.eldestParent = article.articleNr;
+                position.topPosition = article.mva;
             }
             article.children.push({ ...position });
         }
     }
 
     if (article.children.length > 0) {
-        if (article.children.length == 1 && article.children[0].mengenEinheit === 'kg') {
+        if (article.children.length == 1 && article.children[0].unit === 'kg') {
             article.type = 'Laserteil';
         } else {
             article.type = 'Baugruppe';
         }
     } else {
-        if (article.mengenEinheit == 'kg') {
+        if (article.unit == 'kg') {
             article.type = 'Blech';
         } else {
             article.type = 'Einzelteil';
@@ -259,8 +280,8 @@ function findChildren(article, list) {
 
 function updatePos(article) {
     for (let child of article.children) {
-        child.pos = article.pos + '.' + child.pos;
-        child.calcMenge = article.calcMenge * child.menge;
+        child.pos = article.nr + '.' + child.nr;
+        child.totalQuantity = article.totalQuantity * child.quantitycalculated;
         updatePos(child);
     }
 }
