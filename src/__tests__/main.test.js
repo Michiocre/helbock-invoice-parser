@@ -38,7 +38,7 @@ if (fs.existsSync(brigantoExFolder) || fs.existsSync(doppelMayerExFolder)) {
     if (fs.existsSync(doppelMayerExFolder)) {
         describe('Doppelmayer tests', () => {
             fs.readdirSync(doppelMayerExFolder).forEach((subFolder) => {
-                let folderName = path.join(doppelMayerExFolder, subFolder, 'out');
+                let folderName = path.join(doppelMayerExFolder, subFolder, 'In');
                 let fileName = path.join(doppelMayerExFolder, subFolder, 'Bestellung.pdf');
                 let outputFile = path.join(doppelMayerExFolder, subFolder, 'Output.csv');
 

@@ -62,21 +62,24 @@ async function parseDoppelmayerFromFiles(invoicePath, folderPath) {
     let invoicePages = await parsePdf(invoicePath);
     let invoiceRaw = invoicePages.join();
 
-    let filesInFolder = fs.readdirSync(folderPath);
-
     let invoiceArticles = parseDoppelmayerInvoiceFromString(invoiceRaw);
+
     let positions = [];
 
-    for (const file of filesInFolder) {
-        let parts = file.split('.');
-        if (parts[0].length != 8 || parts[1] != 'pdf') {
-            continue;
+    if (fs.existsSync(folderPath)) {
+        let filesInFolder = fs.readdirSync(folderPath);
+
+        for (const file of filesInFolder) {
+            let parts = file.split('.');
+            if (parts[0].length != 8 || parts[1] != 'pdf') {
+                continue;
+            }
+
+            let positionPages = await parsePdf(path.join(folderPath, file));
+            let positionRaw = positionPages.join();
+
+            positions.push(...parseDoppelmayerPositionFromString(positionRaw));
         }
-
-        let positionPages = await parsePdf(path.join(folderPath, file));
-        let positionRaw = positionPages.join();
-
-        positions.push(...parseDoppelmayerPositionFromString(positionRaw));
     }
 
     for (let article of invoiceArticles) {
@@ -113,11 +116,16 @@ async function parseDoppelmayerFromFiles(invoicePath, folderPath) {
         printOrder.push(...printOrder[i].children);
     }
 
+    //debugPrint(outputLines.join('\r\n'));
+
     return outputLines.join('\r\n');
 }
 
 function debugPrint(data) {
     fs.writeFileSync(path.join(__dirname, 'debug.txt'), data);
+}
+function debugPrint2(data) {
+    fs.writeFileSync(path.join(__dirname, 'debug2.txt'), data);
 }
 
 function parseDoppelmayerInvoiceFromString(raw) {
@@ -135,7 +143,6 @@ function parseDoppelmayerInvoiceFromString(raw) {
     let articles = [];
 
     for (let i = 0; i < parts.length; i++) {
-        debugPrint(parts[i]);
         let matches = parts[i].match(
             /(\d+\/\d+)\s+(\d+)\s+(.+?)(\d+,\d+)\s+(\w+)\s+((?:\d+\.)*\d+,\d+) \/ (?:(?:\d+\.)*\d+,\d+)\s+(?:\d+\.)*\d+,\d+\s+(?:\d+\.)*\d+,\d+[\S\s]+?Lieferdatum\s+(\d+\.\d+\.\d+)[\S\s]+?Zeichnungs Nr\.\s+(.+)/
         );
@@ -175,41 +182,42 @@ function parseDoppelmayerInvoiceFromString(raw) {
 
 function parseDoppelmayerPositionFromString(raw) {
     let parent = raw.match(/\d{7,}/)[0];
-    let cut = raw.split(/Ges.Gewicht\s+/)[1];
-    cut = cut.replaceAll(/-{4,}[\s\S]+?Seite:\s+\d+\s+/g, '');
 
-    cut = cut.replaceAll(/(\s+[A-z:]\s*?\n)/g, '\n');
-    cut = cut.replaceAll(/\s+\n/g, '\n');
+    raw = raw.replaceAll(/INSERT_YOUR_DEP plotted: nek/g, '');
+    raw = raw.split(/Ges\. Gewicht\s+/)[1];
+    raw = raw.replaceAll(/(\,)+Einstufige Produktstruktur.+Seite:\s+\d+\s+/g, '');
 
     let articles = [];
 
-    let parts = cut.split(/\s+?(?=[0-9]+[A-Z]+\s+([0-9]+|LEER)\s+(R|C))/);
+    let parts = raw.split(/\s+?(?=\d+\s*\w+\s+(?:\d+|LEER)\s+(?:R|C))/);
 
     for (let i = 0; i < parts.length; i++) {
         let match = parts[i].match(
-            /(\d+)\w+\s+(\d+)\s+\S+\s+((?:\d+\.)?\d+,\d+)\s*([A-z]+)\s+(.+?)\s+(\w+\.\w)?\s+((?:\d+\.)?\d+,\d{3})\s+(?:\d+\.)?\d+,\d+/
+            /(\d+) \w+\s+(\d+)\s+\S+\s+((?:\d+\.)?\d+,\d+)\s*([A-z]+)\s+(.+?)\s+(\w+\.\w)?\s+((?:\d+\.)?\d+,\d{3})\s+(?:\d+\.)?\d+,\d+/
         );
 
         if (!match) {
             continue;
         }
 
+        // if (parent === '11923242') {
+        //     debugPrint2(parts[i]);
+        // }
+
         let lines = parts[i].split(/\r*\n/);
         let nonEmtpyLines = [];
 
         lines[1] = lines[1].replace(/\d+/, '');
-        lines[1] = lines[1].replace(/\d+[A-Z]\s+/, '');
-        lines[1] = lines[1].replace(/\d+,\d+$/, '');
-        lines[1] = lines[1].replace(/\s+TOW/, '');
+        lines[1] = lines[1].replace(/^\s+(\d+,\d+)?/, '');
+        lines[1] = lines[1].replace(/(\w+\s{5,20})?\d+,\d+/, '');
 
         for (let j = 1; j < lines.length; j++) {
             lines[j] = lines[j].replace(/SIEHE STUECKLISTE/, '');
-            lines[j] = lines[j].replace(/\s+O+\s+/, '');
-            lines[j] = lines[j].replace(/\s+R\d+\s*(ROH\s*)?/, '');
-            lines[j] = lines[j].replace(/(O\s+)?\w\/E.+\s+([0-9.]+,[0-9]+|\?)\s*$/, '');
-            lines[j] = lines[j].replace(/\d+,\d+\s+=.+/, '');
-            lines[j] = lines[j].replace(/\s+\/\d+,\d+\s*/, '').trim();
-            lines[j] = lines[j].replace(/^\d+(,\d+)?$/, '');
+            lines[j] = lines[j].replace(/\s{1,3}O(\s+0)?\s{1,3}/, '');
+            lines[j] = lines[j].replace(/\s+R\d+\s*/, '');
+            lines[j] = lines[j].replace(/(\w)?\/E.+\s+(\d+,\d+|\?)\s*$/, '');
+            lines[j] = lines[j].replace(/\d+,\d+\s+=.+$/, '');
+            lines[j] = lines[j].trim();
             if (lines[j] !== '') {
                 nonEmtpyLines.push(lines[j]);
             }
@@ -249,7 +257,7 @@ function parseDoppelmayerPositionFromString(raw) {
 function findChildren(article, list) {
     article.children = [];
     for (const position of list) {
-        if (position.parent == article.mva) {
+        if (position.list == article.mva) {
             if (article.topPosition) {
                 position.topPosition = article.topPosition;
             } else {
@@ -280,7 +288,7 @@ function findChildren(article, list) {
 
 function updatePos(article) {
     for (let child of article.children) {
-        child.pos = article.nr + '.' + child.nr;
+        child.nr = article.nr + '.' + child.nr;
         child.totalQuantity = article.totalQuantity * child.quantitycalculated;
         updatePos(child);
     }
