@@ -3,7 +3,6 @@
     "version": "1.0.0",
     "description": "A parser for invoices",
     "author": "Michiocre",
-    "type": "module",
     "main": "main.js",
     "scripts": {
         "start": "electron .",
@@ -22,10 +21,12 @@
             "artifactName": "Parser.exe"
         }
     },
+    "dependencies": {
+        "pdf-text-extract": "^1.5.0"
+    },
     "devDependencies": {
         "electron": "^17.0.0",
         "electron-builder": "^22.14.13",
-        "jest": "^27.5.1",
-        "pdf-text-extract": "^1.5.0"
+        "jest": "^27.5.1"
     }
 }

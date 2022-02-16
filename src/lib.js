@@ -183,9 +183,13 @@ function parseDoppelmayerInvoiceFromString(raw) {
 function parseDoppelmayerPositionFromString(raw) {
     let parent = raw.match(/\d{7,}/)[0];
 
-    raw = raw.replaceAll(/INSERT_YOUR_DEP plotted: nek/g, '');
+    raw = raw.replaceAll(/INSERT_YOUR_DEP plotted: \w+/g, '');
     raw = raw.split(/Ges\. Gewicht\s+/)[1];
     raw = raw.replaceAll(/(\,)+Einstufige Produktstruktur.+Seite:\s+\d+\s+/g, '');
+
+    if (parent === '10014518') {
+        debugPrint2(raw);
+    }
 
     let articles = [];
 
@@ -200,10 +204,6 @@ function parseDoppelmayerPositionFromString(raw) {
             continue;
         }
 
-        // if (parent === '11923242') {
-        //     debugPrint2(parts[i]);
-        // }
-
         let lines = parts[i].split(/\r*\n/);
         let nonEmtpyLines = [];
 
@@ -212,6 +212,7 @@ function parseDoppelmayerPositionFromString(raw) {
         lines[1] = lines[1].replace(/(\w+\s{5,20})?\d+,\d+/, '');
 
         for (let j = 1; j < lines.length; j++) {
+            lines[j] = lines[j].replace(/^\s+\d+,\d+\s*$/, '');
             lines[j] = lines[j].replace(/SIEHE STUECKLISTE/, '');
             lines[j] = lines[j].replace(/\s{1,3}O(\s+0)?\s{1,3}/, '');
             lines[j] = lines[j].replace(/\s+R\d+\s*/, '');

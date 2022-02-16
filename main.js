@@ -6,6 +6,8 @@ const lib = require('./src/lib.js');
 
 let window;
 
+let config;
+
 app.whenReady().then(() => {
     // Create the browser window.
     window = new BrowserWindow({
@@ -21,6 +23,32 @@ app.whenReady().then(() => {
 
     // Open the DevTools.
     window.webContents.openDevTools();
+
+    let configPath = path.join(app.getPath('userData'), 'config.json');
+
+    if (!fs.existsSync(configPath)) {
+        fs.writeFileSync(
+            configPath,
+            `{
+    "outputPath": "./Output.csv",
+    "inputPath": "./Bestellung.pdf",
+    "inputFolder": "./out"
+}`
+        );
+    }
+    config = JSON.parse(fs.readFileSync(configPath).toString());
+
+    if (config.outputPath.startsWith('./')) {
+        config.outputPath = path.join(app.getAppPath(), path.normalize(config.outputPath.substring(2)));
+    }
+
+    if (config.inputPath.startsWith('./')) {
+        config.inputPath = path.join(app.getAppPath(), path.normalize(config.inputPath.substring(2)));
+    }
+
+    if (config.inputFolder.startsWith('./')) {
+        config.inputFolder = path.join(app.getAppPath(), path.normalize(config.inputFolder.substring(2)));
+    }
 });
 
 ipcMain.on('exit', () => {
@@ -31,28 +59,26 @@ ipcMain.on('openDialog', async (event, args) => {
     window.webContents.send('openDialog', { caller: args[1], data: await dialog.showOpenDialog(window, args[0]) });
 });
 
+ipcMain.on('briganto', (event, args) => {
+    window.webContents.send('briganto', { path: config.inputPath, exists: fs.existsSync(config.inputPath) });
+});
+
 ipcMain.on('processBriganto', async (event, args) => {
-    let outputPath = app.getAppPath() + '\\Output.csv';
+    fs.writeFileSync(config.outputPath, await lib.parseBrigantoFromFile(config.inputPath));
 
-    let processed = lib.parseBrigantoFromFiles(args);
-    fs.writeFileSync(outputPath, processed);
+    window.webContents.send('processBriganto', { fileName: path.parse(config.inputPath).base, path: config.outputPath });
+});
 
-    let fileNames = [];
-    args.forEach((filePath) => {
-        fileNames.push(filePath.split('\\').pop());
-    });
-    window.webContents.send('processBriganto', { fileNames, outputPath });
+ipcMain.on('doppelmayer', (event, args) => {
+    window.webContents.send('doppelmayer', { fileName: config.inputPath, folder: config.inputFolder, exists: fs.existsSync(config.inputPath) });
 });
 
 ipcMain.on('processDoppelmayer', async (event, args) => {
-    let outputPath = app.getAppPath() + '\\Output.csv';
-
-    let processed = lib.parseDoppelmayerFromFiles(args.dmFile, args.dmOutFolder);
-    fs.writeFileSync(outputPath, processed);
+    fs.writeFileSync(config.outputPath, await lib.parseDoppelmayerFromFiles(config.inputPath, config.inputFolder));
 
     window.webContents.send('processDoppelmayer', {
-        dmFile: args.dmFile.split('\\').pop(),
-        dmOutFolder: args.dmOutFolder.split('\\').pop(),
-        outputPath,
+        fileName: path.parse(config.inputPath).base,
+        folder: path.parse(config.inputFolder).base,
+        outputPath: config.outputPath,
     });
 });
