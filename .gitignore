@@ -1,5 +1,12 @@
-.vs
-.idea
-**/bin/**
-**/obj/**
-**/.DS_Store
+node_modules
+dist
+time.txt
+Output.csv
+brigantoExamples
+doppelmayerExamples
+old
+pause
+debug.txt
+debug2.txt
+config.json
+myTest

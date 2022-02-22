@@ -1,0 +1,32 @@
+{
+    "name": "helbock-invoice-parser",
+    "version": "1.0.0",
+    "description": "A parser for invoices",
+    "author": "Michiocre",
+    "main": "main.js",
+    "scripts": {
+        "start": "electron .",
+        "test": "jest",
+        "build": "electron-builder",
+        "clean": "rmdir /s dist",
+        "start-build": "start dist/Parser.exe"
+    },
+    "build": {
+        "appId": "com.mbbs.parser",
+        "win": {
+            "target": "portable"
+        },
+        "portable": {
+            "unicode": false,
+            "artifactName": "Parser.exe"
+        }
+    },
+    "dependencies": {
+        "pdf-text-extract": "^1.5.0"
+    },
+    "devDependencies": {
+        "electron": "^17.0.0",
+        "electron-builder": "^22.14.13",
+        "jest": "^27.5.1"
+    }
+}

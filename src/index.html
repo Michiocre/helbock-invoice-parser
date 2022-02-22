@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="stylesheet" href="./css/styles.css" />
+        <link rel="stylesheet" href="./css/pico.min.css" />
+        <title>Helbock Parser</title>
+    </head>
+    <body>
+        <div id="center">
+            <div id="clientSelect">
+                <h1>Kunde Auswählen</h1>
+                <button onClick="selectBriganto()">Briganto</button>
+                <button onClick="selectDoppelmayer()">Doppelmayer</button>
+            </div>
+
+            <div id="processBriganto" hidden>
+                <h1>Briganto</h1>
+                <div id="processBrigantoText" class="output"></div>
+                <button onClick="processBriganto()">Verarbeiten</button>
+                <button onClick="clientSelect()">Zurück</button>
+            </div>
+
+            <div id="finishedBriganto" hidden>
+                <h1>Briganto</h1>
+                <div id="finishedBrigantoText" class="output"></div>
+                <button onClick="clientSelect()">Zurück</button>
+                <button onClick="exit()">Program Schließen</button>
+            </div>
+
+            <div id="processDoppelmayer" hidden>
+                <h1>Doppelmayer</h1>
+                <div id="processDoppelmayerText" class="output"></div>
+                <button onClick="processDoppelmayer()">Verarbeiten</button>
+                <button onClick="clientSelect()">Zurück</button>
+            </div>
+
+            <div id="loading" hidden>
+                <h1>Loading ...</h1>
+                <div id="loadWrapper">
+                    <div class="loader"></div>
+                </div>
+            </div>
+
+            <div id="finishedDoppelmayer" hidden>
+                <h1>Doppelmayer</h1>
+                <div id="outputDoppelmayer" class="output"></div>
+                <button onClick="clientSelect()">Zurück</button>
+                <button onClick="exit()">Program Schließen</button>
+            </div>
+        </div>
+
+        <script src="./renderer.js"></script>
+    </body>
+</html>
