@@ -22,7 +22,7 @@ app.whenReady().then(() => {
     window.loadFile('src/index.html');
 
     // Open the DevTools.
-    window.webContents.openDevTools();
+    //window.webContents.openDevTools();
 
     let configPath = path.join(app.getPath('userData'), 'config.json');
 
@@ -38,16 +38,18 @@ app.whenReady().then(() => {
     }
     config = JSON.parse(fs.readFileSync(configPath).toString());
 
+    let execPath = process.env.PORTABLE_EXECUTABLE_DIR || app.getAppPath();
+
     if (config.outputPath.startsWith('./')) {
-        config.outputPath = path.join(app.getAppPath(), path.normalize(config.outputPath.substring(2)));
+        config.outputPath = path.join(execPath, path.normalize(config.outputPath.substring(2)));
     }
 
     if (config.inputPath.startsWith('./')) {
-        config.inputPath = path.join(app.getAppPath(), path.normalize(config.inputPath.substring(2)));
+        config.inputPath = path.join(execPath, path.normalize(config.inputPath.substring(2)));
     }
 
     if (config.inputFolder.startsWith('./')) {
-        config.inputFolder = path.join(app.getAppPath(), path.normalize(config.inputFolder.substring(2)));
+        config.inputFolder = path.join(execPath, path.normalize(config.inputFolder.substring(2)));
     }
 });
 
