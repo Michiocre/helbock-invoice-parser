@@ -6,7 +6,6 @@ brigantoExamples
 doppelmayerExamples
 old
 pause
-debug.txt
-debug2.txt
+debug*.txt
 config.json
 myTest

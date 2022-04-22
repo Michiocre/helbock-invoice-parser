@@ -24,6 +24,7 @@ async function parseBrigantoFromFile(filePath) {
     let raw = pages.join();
 
     let processed = parseBrigantoFromString(raw);
+
     for (const line of processed) {
         outputLines.push(
             [line.nr, '', line.mva, '', line.name, '', line.quantitycalculated, '', '', line.unit, line.posunitcalcprice, '', '', '', line.date].join(
@@ -36,7 +37,12 @@ async function parseBrigantoFromFile(filePath) {
 }
 
 function parseBrigantoFromString(raw) {
-    let matches = [...raw.matchAll(/(\d+)\s+(\d+,\d+)\s+(\w+)\s+(\S+).+? (\d+,\d+)\s+\d+,\d+\s+\w+\s+(.+)[\s\S]*?Liefertermin\s+(\d+\.\d+.\d+)/g)];
+    debugPrint(raw, './debug_raw.txt');
+    let matches = [
+        ...raw.matchAll(
+            /(?<nr>\d+)\s+(?<quantitycalculated>\d+,\d+)\s+(?<unit>\w+)\s+(?<mva>\S+).+? (?<posunitcalcprice>\d+[,.]\d+)\s+\d+[,.]\d+\s+\w+\s+(?<name>.+)[\s\S]*?Liefertermin\s+(?<date>\d+\.\d+.\d+)/g
+        ),
+    ];
     let articles = [];
 
     for (let i = 0; i < matches.length; i++) {
@@ -116,16 +122,11 @@ async function parseDoppelmayerFromFiles(invoicePath, folderPath) {
         printOrder.push(...printOrder[i].children);
     }
 
-    //debugPrint(outputLines.join('\r\n'));
-
     return outputLines.join('\r\n');
 }
 
-function debugPrint(data) {
-    fs.writeFileSync(path.join(__dirname, 'debug.txt'), data);
-}
-function debugPrint2(data) {
-    fs.writeFileSync(path.join(__dirname, 'debug2.txt'), data);
+function debugPrint(data, fileName) {
+    fs.writeFileSync(path.join(__dirname, fileName), data);
 }
 
 function parseDoppelmayerInvoiceFromString(raw) {
@@ -186,10 +187,6 @@ function parseDoppelmayerPositionFromString(raw) {
     raw = raw.replaceAll(/INSERT_YOUR_DEP plotted: \w+/g, '');
     raw = raw.split(/Ges\. Gewicht\s+/)[1];
     raw = raw.replaceAll(/(\,)+Einstufige Produktstruktur.+Seite:\s+\d+\s+/g, '');
-
-    if (parent === '10014518') {
-        debugPrint2(raw);
-    }
 
     let articles = [];
 
