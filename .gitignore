@@ -1,5 +1,9 @@
 .vs
+.vscode
 .idea
 **/bin/**
 **/obj/**
 **/.DS_Store
+
+node_modules
+mytest

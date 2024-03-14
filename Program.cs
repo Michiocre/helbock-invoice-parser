@@ -222,7 +222,7 @@ namespace Parser
             for (int i = 0; i < parts.Length; i++)
             {
                 //Die Seitenumbrüche werden aus jedem Teil gelöscht (Alles von "Bank für Tirol" bis "Ihre Artikelbezeichnung")
-                parts[i] = Regex.Replace(parts[i], @"\s*Bank für Tirol[\S\s]+Nettobetrag", "");
+                parts[i] = Regex.Replace(parts[i], @"\s*Bank für Tirol[\S\s]+Artikel Rev\.", "").Trim();
 
             }
             //Im Letzten Teil wird noch alles Extrige das danach kommt gelöscht
