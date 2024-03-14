@@ -1,4 +1,13 @@
+.vs
+.vscode
+.idea
+**/bin/**
+**/obj/**
+**/.DS_Store
+
 node_modules
+mytest
+
 dist
 time.txt
 Output.csv
