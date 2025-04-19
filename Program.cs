@@ -239,7 +239,21 @@ namespace Parser
             {
                 if (!string.IsNullOrEmpty(s))
                 {
-                    positions.Add(ParseInvoicePart(s));
+                    Position p = null;
+                    try
+                    {
+                        p = ParseInvoicePart(s);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine($"Error: Eine der Positionen konnte nicht richtig erkannt werden, bitte überprüfen Sie die Ausgabe des Programms und legen Sie wenn nötig die Position manuell an.");
+                        Console.WriteLine($"ErrorMessage: " + e.Message);
+                    }
+
+                    if (p != null)
+                    {
+                        positions.Add(p);
+                    }
                 }
             }
         }
@@ -256,10 +270,10 @@ namespace Parser
             //Hier die Auswahl meherer Variablen aus dem Text
             string posNr = Regex.Match(text, @"[0-9/]+").ToString();
 
-            //if (string.IsNullOrEmpty(posNr))
-            //{
-            //    return null;
-            //}
+            if (text.StartsWith("Zw.-Summe"))
+            {
+                return null;
+            }
 
             posNr = Regex.Replace(posNr, @";", ",");
             string artNr = Regex.Match(text, @"(?<=([0-9]+\/[0-9]+\s+))[0-9]+").ToString();
