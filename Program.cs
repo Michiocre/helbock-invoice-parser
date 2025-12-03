@@ -224,11 +224,14 @@ namespace Parser
                 //Die Seitenumbrüche werden aus jedem Teil gelöscht (Alles von "Bank für Tirol" bis "Ihre Artikelbezeichnung")
                 parts[i] = Regex.Replace(parts[i], @"\s*Bank für Tirol[\S\s]+Artikel Rev\.", "").Trim();
 
+                //Die Seitenumbrüche werden aus jedem Teil gelöscht (Alles von "BTV Vier Länder Bank" bis "Ihre Artikelbezeichnung")
+                parts[i] = Regex.Replace(parts[i], @"\s*BTV Vier Länder Bank[\S\s]+Artikel Rev\.", "").Trim();
+
             }
             //Im Letzten Teil wird noch alles Extrige das danach kommt gelöscht
             parts[parts.Length - 1] = Regex.Replace(Regex.Replace(parts[parts.Length - 1], @"[\s\n]+Bank[\s\S]+", ""), @"[\s\n]*Gesamtbetrag[\s\S]+", "");
 
-            if (parts[parts.Length -1] == "Bank für Tirol und Vorarlberg AG UniCredit")
+            if (parts[parts.Length - 1] == "Bank für Tirol und Vorarlberg AG UniCredit" || parts[parts.Length - 1].StartsWith("Zw.-Summe"))
             {
                 parts[parts.Length - 1] = null;
             }
@@ -363,7 +366,7 @@ namespace Parser
 
                 if (list != "")
                 {
-                    string[] temp = Regex.Split(text, @"Ges.Gewicht\s+");
+                    string[] temp = Regex.Split(text, @"Ges. Gewicht\s+");
 
                     temp = Regex.Split(temp[1], @"\s+EndederKonstruktionsrevisionBaukasten-Stücklisten-Info[\s\S]+");
                     temp = Regex.Split(temp[0], @"\s+Gesamtgewicht[\s\S]+");
@@ -392,7 +395,7 @@ namespace Parser
         static Position ReadOneBlock(string text, string list)
         {
             string posNr = Regex.Match(text, @"[0-9]+").ToString();
-            string artNr = Regex.Match(text, @"(?<=([0-9]+[A-Z]\s+))[0-9]+").ToString();
+            string artNr = Regex.Match(text, @"(?<=([0-9]+\s*[A-Z]\s+))[0-9]+").ToString();
             string name = "";
             string drawing = "";
             double quantity = Convert.ToDouble(Regex.Match(text, @"[0-9.]+,[0-9]+").ToString(), provider);
@@ -426,6 +429,7 @@ namespace Parser
                             if (s.Length >= 8)
                             {
                                 String t = Regex.Replace(s, @"\s*SIEHE\s*STUECKLISTE\s*", "");
+                                t = Regex.Replace(t, @"\s*INSERT_YOUR_DEP\s*plotted:\s*schf\s*", "");
                                 t = t.Trim();
                                 t = Regex.Replace(t, @"^[0-9.]+,[0-9]+$", "");
                                 t = Regex.Replace(t, @"^[0-9]+,[0-9]+ =$", "");
