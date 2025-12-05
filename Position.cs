@@ -173,7 +173,7 @@ namespace Parser
 
         public void DetectMirrorSibling(List<Position> positions)
         {
-            if (this.type == "Einzelteil" && (Regex.IsMatch(this.name, @".+ WG") || Regex.IsMatch(this.name, @".+ SP")))
+            if (this.type == "Einzelteil" && (Regex.IsMatch(this.name, @".+\s?WG") || Regex.IsMatch(this.name, @".+\s?SP")))
             {
                 foreach (Position p in positions)
                 {
@@ -191,7 +191,7 @@ namespace Parser
             }
 
             //Fehlermeldung
-            if (this.type == "Einzelteil" && !(Regex.IsMatch(this.name, @".+ WG") || Regex.IsMatch(this.name, @".+ SP")))
+            if (this.type == "Einzelteil" && !(Regex.IsMatch(this.name, @".+\s?WG") || Regex.IsMatch(this.name, @".+\s?SP")))
             {
                 foreach (Position p in positions)
                 {

@@ -107,6 +107,8 @@ namespace Parser
             //Importierung der Bestellungs Datei
             ImportInvoice(inputFile);
 
+            Console.WriteLine(positions.Count + " Bestellpositionen gefunden.");
+
             //Importierung von allen Stücklisten files, diese werden ungeordnet in eine Liste geschrieben
             List<Position> unordnedList = new List<Position>(ImportThePositions());
 
@@ -359,6 +361,8 @@ namespace Parser
             List<Position> positions = new List<Position>();
             //Alle Files die einen 8-Zeichen langen Namen und eine Endung auf .txt haben werden importiert
             string[] txtFiles = Directory.EnumerateFiles(inputFolder, "????????.txt").ToArray<string>();
+            Console.WriteLine(txtFiles.Length + " Stücklisten.");
+
             for (int i = 0; i < txtFiles.Length; i++)
             {
                 string text = File.ReadAllText(txtFiles[i]);
@@ -380,8 +384,9 @@ namespace Parser
                     temp = Regex.Split(temp[0], @"HFCHS NACH");
                     temp = Regex.Split(temp[0], @"Druckdaten");
                     */
-                    string[] block = Regex.Split(temp[0], @"\s+?(?=[0-9]+[A-Z]+\s+[0-9]+\s+R)");
+                    string[] block = Regex.Split(temp[0], @"\s+?(?=[0-9]+\s+[A-Z]+\s+[0-9]+\s+R)");
 
+                    Console.WriteLine("\t"+ list + " mit " + block.Length + " Positionen.");
 
                     foreach (string s in block)
                     {
